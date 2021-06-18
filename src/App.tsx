@@ -15,6 +15,9 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./redux/store";
 import { addTodo, removeTodo, setTodoStatus } from "./redux/todoSlice";
+import { Todo } from "./models/Todo";
+import { object, SchemaOf, string, boolean } from "yup";
+
 
 const App: React.FC = () => {
   //React Hooks
@@ -24,30 +27,39 @@ const App: React.FC = () => {
   const todoList = useSelector((state: RootState) => state);
   const dispatch = useDispatch<AppDispatch>();
 
+  // Yup validation
+  const schema: SchemaOf<Todo> = object().shape({
+    id: string(),
+    description: string().required("Item cannot be empty!"),
+    completed: boolean()
+  });
+
   //Rendering
   return (
     <Container maxWidth="xs">
       <Typography style={{ textAlign: "center" }} variant="h3">
-        Redux List App
+        Redux Todo-List App
       </Typography>
-      <TextField
-        variant="outlined"
-        label="To Do Item"
-        fullWidth
-        onChange={(e) => setTodoDescription(e.target.value)}
-        value={todoDescription}
-      />
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={() => {
-          dispatch(addTodo(todoDescription));
-          setTodoDescription("");
-        }}
-      >
-        Add Item
-      </Button>
+      <form schema={schema}>
+        <TextField
+          variant="outlined"
+          label="To Do Item"
+          fullWidth
+          onChange={(e: { target: { value: any; }; }) => setTodoDescription(e.target.value)}
+          value={todoDescription}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={() => {
+            dispatch(addTodo(todoDescription));
+            setTodoDescription("");
+          }}
+        >
+          Add Item
+        </Button>
+      </form>
       <List>
         {todoList.map((todo) => (
           <ListItem key={todo.id}>
